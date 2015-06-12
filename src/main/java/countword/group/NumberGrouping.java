@@ -11,22 +11,23 @@ import java.util.List;
  * Created by neal.xu on 2015/6/11.
  */
 public class NumberGrouping implements CustomStreamGrouping {
-    private int numTasks = 0;
+    private List<Integer> targetTasks;
 
     @Override
     public void prepare(WorkerTopologyContext context, GlobalStreamId stream, List<Integer> targetTasks) {
-        this.numTasks = targetTasks.size();
+        this.targetTasks = targetTasks;
     }
 
     @Override
     public List<Integer> chooseTasks(int taskId, List<Object> values) {
         List<Integer> boltIds = new ArrayList<>();
-        if (!values.isEmpty()) {
+        if (values.size() > 0) {
             String str = values.get(0).toString();
             if (str.isEmpty()) {
-                boltIds.add(0);
+                boltIds.add(targetTasks.get(0));
             } else {
-                boltIds.add(Integer.parseInt(str) % numTasks);
+                int i = str.charAt(0) % targetTasks.size();
+                boltIds.add(targetTasks.get(i));
             }
         }
         return boltIds;
